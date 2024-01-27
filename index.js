@@ -1,16 +1,17 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion, Collection, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = 3000
 
 
 // middleware
 app.use(cors({
-  origin: ['https://OmniTask-server-ten.vercel.app', 'http://localhost:3000', 'https://lifeflow-25df5.web.app', 'http://localhost:5173'],
+  origin: ['https://omni-task-server.vercel.app', 'http://localhost:3000', 'https://omni-task-server-coderomayer-omayers-projects.vercel.app', 'http://localhost:5173', 'https://omni-task.vercel.app'],
   methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
 }));
 app.use(express.json());
+
 
 
 
@@ -31,11 +32,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const districtCollection = client.db('OmniTask').collection('district')
-    const upazilaCollection = client.db('OmniTask').collection('upazila')
-    const userCollection = client.db('OmniTask').collection('user')
-    const DonationRequestCollection = client.db('OmniTask').collection('donationRequest')
-    const BlogsCollection = client.db('OmniTask').collection('blogs')
+    const userCollection = client.db('OmniTask').collection('users')
+    const taskCollection = client.db('OmniTask').collection('task')
 
     // Users
 
@@ -97,7 +95,6 @@ async function run() {
     });
 
 
-
     app.delete('/users/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -107,114 +104,35 @@ async function run() {
 
 
 
-    // /Donation Requests
+    // Task Data
 
-    app.post('/donation-requests', async (req, res) => {
-      const query = req.body;
-      const result = await DonationRequestCollection.insertOne(query);
-      res.send(result)
-    })
-
-    app.get('/donation-requests', async (req, res) => {
-      const result = await DonationRequestCollection.find().toArray();
-      res.send(result)
-    })
-
-    // ...
-
-    app.get('/donation-requests/:email', async (req, res) => {
-      try {
-        const requesterEmail = req.params.email;
-        const query = { 'requesterEmail': requesterEmail }; // Corrected query for nested email field
-        const result = await DonationRequestCollection.find(query).toArray();
-        res.send(result);
-      } catch (error) {
-        console.error("Error fetching donation requests:", error);
-        res.status(500).send({ error: 'Internal Server Error' });
+    
+    app.get('/task', async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = { email: req.query.email };
       }
-    });
-
-
-    app.get('/donation-requests/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await DonationRequestCollection.findOne(query);
+      const result = await taskCollection.find(query).toArray();
       res.send(result);
     });
+    
 
+    app.post('/task', async (req, res) => {
+      const data = req.body;
+      const result = await taskCollection.insertOne(data)
+      res.send(result)
+    })
 
-    // Update Donation Request data
-    app.patch('/donation-requests/:id', async (req, res) => {
-      try {
-        const requestId = req.params.id;
-        const query = { _id: new ObjectId(requestId) };
-        const updatedDonationRequest = {
-          $set: {
-            requesterName: req.body.requesterName,
-            requesterEmail: req.body.requesterEmail,
-            recipientName: req.body.recipientName,
-            recipientDistrict: req.body.recipientDistrict,
-            recipientUpazila: req.body.recipientUpazila,
-            hospitalName: req.body.hospitalName,
-            fullAddress: req.body.fullAddress,
-            donationDate: req.body.donationDate,
-            donationTime: req.body.donationTime,
-            requestMessage: req.body.requestMessage,
-            donationStatus: req.body.donationStatus,
-          },
-        };
+    // Delete
 
-        const result = await DonationRequestCollection.updateOne(query, updatedDonationRequest);
-
-        if (result.matchedCount > 0) {
-          res.send({ updatedDonationRequest: true });
-        } else {
-          res.status(404).send({ updatedDonationRequest: false, message: 'Donation request not found' });
-        }
-      } catch (error) {
-        console.error("Error updating donation request:", error);
-        res.status(500).send({ updatedDonationRequest: false, message: 'Internal Server Error' });
-      }
-    });
-
-
-
-    app.delete('/donation-requests/:id', async (req, res) => {
+    app.delete('/task/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await DonationRequestCollection.deleteOne(query);
-      res.send(result);
-    });
-
-    // ...
-
-    // Blog
-
-    app.post('/blogs', async (req, res) => {
-      const query = req.body;
-      const result = await BlogsCollection.insertOne(query);
-      res.send(result)
-    })
-
-    app.get('/blogs', async (req, res) => {
-      const result = await BlogsCollection.find().toArray()
+      const query = { _id: new ObjectId(id)}
+      const result = await taskCollection.deleteOne(query);
       res.send(result)
     })
 
 
-
-
-    // District Data
-    app.get('/district', async (req, res) => {
-      const result = await districtCollection.find().toArray();
-      res.send(result)
-    })
-
-    // upazila Data
-    app.get('/upazila', async (req, res) => {
-      const result = await upazilaCollection.find().toArray();
-      res.send(result)
-    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
