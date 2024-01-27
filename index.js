@@ -65,34 +65,34 @@ async function run() {
 
     // Uddate User data
 
-    app.patch('/users/:id', async (req, res) => {
-      try {
-        const userId = req.params.id;
-        const query = { _id: new ObjectId(userId) };
-        const updatedUser = {
-          $set: {
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-            bloodGroup: req.body.bloodGroup,
-            district: req.body.district,
-            upazila: req.body.upazila,
-            file: req.body.file,
-          },
-        };
+    // app.patch('/users/:id', async (req, res) => {
+    //   try {
+    //     const userId = req.params.id;
+    //     const query = { _id: new ObjectId(userId) };
+    //     const updatedUser = {
+    //       $set: {
+    //         name: req.body.name,
+    //         email: req.body.email,
+    //         password: req.body.password,
+    //         bloodGroup: req.body.bloodGroup,
+    //         district: req.body.district,
+    //         upazila: req.body.upazila,
+    //         file: req.body.file,
+    //       },
+    //     };
 
-        const result = await userCollection.updateOne(query, updatedUser);
+    //     const result = await userCollection.updateOne(query, updatedUser);
 
-        if (result.matchedCount > 0) {
-          res.send({ updatedUser: true });
-        } else {
-          res.status(404).send({ updatedUser: false, message: 'User not found' });
-        }
-      } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).send({ updatedUser: false, message: 'Internal Server Error' });
-      }
-    });
+    //     if (result.matchedCount > 0) {
+    //       res.send({ updatedUser: true });
+    //     } else {
+    //       res.status(404).send({ updatedUser: false, message: 'User not found' });
+    //     }
+    //   } catch (error) {
+    //     console.error("Error updating user:", error);
+    //     res.status(500).send({ updatedUser: false, message: 'Internal Server Error' });
+    //   }
+    // });
 
 
     app.delete('/users/:id', async (req, res) => {
