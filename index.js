@@ -7,7 +7,7 @@ const port = 3000
 
 // middleware
 app.use(cors({
-  origin: ['https://omni-task-server.vercel.app', 'http://localhost:3000', 'https://omni-task-server-coderomayer-omayers-projects.vercel.app', 'http://localhost:5173', 'https://omni-task.vercel.app'],
+  origin: ['https://omnitask.vercel.app', 'http://localhost:3000', 'https://omni-task-server-coderomayer-omayers-projects.vercel.app', 'http://localhost:5173', 'https://omni-task.vercel.app'],
   methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
 }));
 app.use(express.json());
